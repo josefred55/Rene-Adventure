@@ -1,0 +1,14 @@
+Guide Rene trought the colorful world!, Collect coins, powerUps, collectibles, 
+defeat enemies and more awaits you in this adventure.
+
+- Move with arrow keys or WASD.
+
+- Jump with W or up key.
+
+- When having a fire powerUp, shoot fireballs with Z.
+You can kill enemies shooting fireballs at them.
+
+- Jump into a wall or a platform by it's side and move to the direction of the wall to slide in it,
+then, press jump to perform a wall jump.
+
+- Grab hearts to recover life if you took damage.
