@@ -53,19 +53,17 @@ end
 
 function love.update(dt)
     Map:checklevelStarting(dt)
-    if GAME_STARTED and not Map.levelStarting then
-        if not GAME_PAUSED then
-            Map:update(dt)
-            especialCollider.updateAll(dt)
-            Coin.updateAll(dt)
-            Enemy.updateAll(dt)
-            Fireball.updateAll(dt)
-            Player:update(dt)
-            PowerUps.updateAll(dt)
-            Spikes.updateAll(dt)
-            camera:setPosition(Player.x, 0)
-        end
-    end
+    if not GAME_STARTED or Map.levelStarting then return end
+    
+    Map:update(dt)
+    especialCollider.updateAll(dt)
+    Coin.updateAll(dt)
+    Enemy.updateAll(dt)
+    Fireball.updateAll(dt)
+    Player:update(dt)
+    PowerUps.updateAll(dt)
+    Spikes.updateAll(dt)
+    camera:setPosition(Player.x, 0)
 end
 
 function love.draw()
