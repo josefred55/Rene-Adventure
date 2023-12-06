@@ -190,12 +190,11 @@ function Player:firePowerUp(dt)
     if self.powerUps.fireballTimer > 1.5 then
         if love.keyboard.isDown('z') and not self.canSlideWall then
             self.powerUps.anim = "shooting"
+            self.powerUps.fireballTimer = 0
             if self.direction == "right" then
-                fireball.new(self.collider:getX() + 30, self.collider:getY(), "right")
-                self.powerUps.fireballTimer = 0
+                fireball.new(self.collider:getX() + 30, self.collider:getY(), self.direction)
             else
-                fireball.new(self.collider:getX() - 30, self.collider:getY(), "left")
-                self.powerUps.fireballTimer = 0
+                fireball.new(self.collider:getX() - 30, self.collider:getY(), self.direction)
             end
             sounds.fireball:stop()
             sounds.fireball:play()

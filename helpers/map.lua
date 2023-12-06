@@ -16,7 +16,7 @@ local loading_timer = {current = 0, max = 2}
 
 function Map:load()
     self.levels = 2
-    self.currentLevel = 2
+    self.currentLevel = 1
 
     --the world (Where our physical colliders, which we will not see, exist)
     --it will only be created once when the game is booted, and when we move to the next levels only the colliders inside of it will be replaced
