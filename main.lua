@@ -54,7 +54,7 @@ end
 function love.update(dt)
     Map:checklevelStarting(dt)
     if not GAME_STARTED or Map.levelStarting then return end
-    
+
     Map:update(dt)
     especialCollider.updateAll(dt)
     Coin.updateAll(dt)
@@ -68,6 +68,7 @@ end
 
 function love.draw()
     if not GAME_STARTED then
+
         if END_SCREEN.instructions then
             menu.draw("instructions")
         elseif END_SCREEN.victory then
