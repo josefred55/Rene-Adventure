@@ -67,7 +67,7 @@ end
 
 function Map:checklevelStarting(dt)
     if not self.levelStarting then return end
-    
+
     loading_timer.current = loading_timer.current + dt
     if loading_timer.current > loading_timer.max then
         loading_timer.current = 0
@@ -115,13 +115,20 @@ end
 
 function Map:checkLevelChange(dt)
     --this function will check for deaths to reset the map and game overs if the player run out of lives
-    if player.victory or not player.alive then
+    local victory, reset
+    if player.victory then
+        victory = true
+    elseif not player.alive then
+        reset = true
+    end
+
+    if victory or reset then
         self.levelChangeTimer.current = self.levelChangeTimer.current + dt
         if self.levelChangeTimer.current > self.levelChangeTimer.max then
             self.levelChangeTimer.current = 0
-            if player.victory then
+            if victory then
                 self:changeLevel("next_level")
-            elseif not player.alive then
+            elseif reset then
                 if self:checkGameOver() then return end
                 self:changeLevel("reset")
             end
