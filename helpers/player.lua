@@ -499,7 +499,10 @@ function Player:jump()
     -- we will know when he is using the second by checking if they are not at the ground (they are already perfoming a jump)
     self.sprites.animations.jump:resume()
     self.sprites.animations.fall:resume()
-    if not self.grounded and self.doubleJump then --double jump
+    if self.grounded then --normal jump
+        self.collider:applyLinearImpulse(0, -1200)
+        self.sprites.animations.jump:gotoFrame(1)
+    elseif not self.grounded and self.doubleJump then --double jump
         -- if the player is falling, anulate the gravity to not cancel automatically the second jump impulse
         if self.yVel > -200 then
             self.collider:setLinearVelocity(self.xVel, 0)
@@ -511,9 +514,6 @@ function Player:jump()
 
         self.doubleJump = false
         self.sprites.animations.jump:gotoFrame(2)
-    else --normal jump
-        self.collider:applyLinearImpulse(0, -1200)
-        self.sprites.animations.jump:gotoFrame(1)
     end
     sounds.jump:stop()
     sounds.jump:play()
