@@ -66,19 +66,19 @@ function Map:init()
 end
 
 function Map:checklevelStarting(dt)
-    if self.levelStarting then
-        loading_timer.current = loading_timer.current + dt
-        if loading_timer.current > loading_timer.max then
-            loading_timer.current = 0
-            self.levelStarting = false
-            self:init()
-            --if this is the first time loading the game, the player will not exist
-            if not player.loaded then
-                love.loadOtherStuff("player")
-            end
-
-            player:respawn()
+    if not self.levelStarting then return end
+    
+    loading_timer.current = loading_timer.current + dt
+    if loading_timer.current > loading_timer.max then
+        loading_timer.current = 0
+        self.levelStarting = false
+        self:init()
+        --if this is the first time loading the game, the player will not exist
+        if not player.loaded then
+            love.loadOtherStuff("player")
         end
+
+        player:respawn()
     end
 end
 
