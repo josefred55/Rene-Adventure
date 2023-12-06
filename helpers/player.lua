@@ -180,9 +180,9 @@ function Player:draw()
 end
 
 function Player:checkPowerUps(dt)
-    if self.powerUps.fire then
-        self:firePowerUp(dt)
-    end
+    if not self.powerUps.fire then return end
+
+    self:firePowerUp(dt)
 end
 
 function Player:firePowerUp(dt)
@@ -204,75 +204,81 @@ function Player:firePowerUp(dt)
 end
 
 function Player:checkInmortality(dt)
-    if self.inmortality then
-        self:blink()
-        self.graceTimer.current = self.graceTimer.current + dt
-        if self.graceTimer.current > self.graceTimer.max then
-            self.inmortality = false
-            self.graceTimer.current = 0
-        end
+    if not self.inmortality then return end
+
+    self:blink()
+    self.graceTimer.current = self.graceTimer.current + dt
+    if self.graceTimer.current > self.graceTimer.max then
+        self.inmortality = false
+        self.graceTimer.current = 0
     end
 end
 
 function Player:movement(dt)
-    if self.health.current > 0 then
-        self.xVel, self.yVel = self.collider:getLinearVelocity()
-
-        --limit the player falling velocity
-        if self.yVel > 500 then
-            self.yVel = 500
-        end
-
-        if self.movable then
-            --movements (left and right)
-            if love.keyboard.isDown('d', 'right') and self.xVel < self.speed then
-                self:move(dt, "right")
-            elseif love.keyboard.isDown('a', 'left') and self.xVel > -(self.speed) then
-                self:move(dt, "left")
-            end
-        end
-
-        --jumping
-        function love.keypressed(key)
-            if key == 'up' or key == "w" then
-                if self.movable then
-                    --if the player can wall jump, he will, else he will do a normal jumo
-                    if self.canWallJump.right or self.canWallJump.left then
-                        self:wallJump()
-                    elseif self.grounded or self.doubleJump and (not self.wallGliding) then
-                        self:jump()
-                    end
-                end
-            elseif key == "escape" then
-                if not GAME_PAUSED then
-                    GAME_PAUSED = true
-                    if MAP_MUSIC:isPlaying() then
-                        MAP_MUSIC:pause()
-                    end
-                else
-                    GAME_PAUSED = false
-                    if not MAP_MUSIC:isPlaying() then
-                        MAP_MUSIC:play()
-                    end
-                end
-            end
-        end
-
-        --apply friction
-        if self.xVel < 0 then
-            self.xVel = math.min(self.xVel + self.friction * dt, 0)
-        elseif self.xVel > 0 then
-            self.xVel = math.max(self.xVel - self.friction * dt, 0)
-        end
-
-        --avoid the player from going past the left corner of the screen
-        if self.collider:getX() < 10 then
-            self.collider:setPosition(11, self.collider:getY())
-        end
-
-        self.collider:setLinearVelocity(self.xVel, self.yVel)
+    if self.health.current <= 0 then 
+        self:fixPosition()
+        return
     end
-    
+
+    self.xVel, self.yVel = self.collider:getLinearVelocity()
+
+    --limit the player falling velocity
+    if self.yVel > 500 then
+        self.yVel = 500
+    end
+
+    if self.movable then
+        --movements (left and right)
+        if love.keyboard.isDown('d', 'right') and self.xVel < self.speed then
+            self:move(dt, "right")
+        elseif love.keyboard.isDown('a', 'left') and self.xVel > -(self.speed) then
+            self:move(dt, "left")
+        end
+    end
+
+    --jumping
+    function love.keypressed(key)
+        if key == 'up' or key == "w" then
+            if self.movable then
+                --if the player can wall jump, he will, else he will do a normal jumo
+                if self.canWallJump.right or self.canWallJump.left then
+                    self:wallJump()
+                elseif self.grounded or self.doubleJump and (not self.wallGliding) then
+                    self:jump()
+                end
+            end
+        elseif key == "escape" then
+            if not GAME_PAUSED then
+                GAME_PAUSED = true
+                if MAP_MUSIC:isPlaying() then
+                    MAP_MUSIC:pause()
+                end
+            else
+                GAME_PAUSED = false
+                if not MAP_MUSIC:isPlaying() then
+                    MAP_MUSIC:play()
+                end
+            end
+        end
+    end
+
+    --apply friction
+    if self.xVel < 0 then
+        self.xVel = math.min(self.xVel + self.friction * dt, 0)
+    elseif self.xVel > 0 then
+        self.xVel = math.max(self.xVel - self.friction * dt, 0)
+    end
+
+    --avoid the player from going past the left corner of the screen
+    if self.collider:getX() < 10 then
+        self.collider:setPosition(11, self.collider:getY())
+    end
+
+    self.collider:setLinearVelocity(self.xVel, self.yVel)
+    self:fixPosition()
+end
+
+function Player:fixPosition()
     --move the player coordinates along their collider (the sprite is a bit offset because of the scale so i have to change the coordinates a little)
     self.x = self.collider:getX() - 60
     self.y = self.collider:getY() - 93
@@ -295,14 +301,14 @@ function Player:animate(dt)
     --or shooting a fireball
     elseif self.powerUps.anim == "shooting" then
         self.movable = false
-            self.powerUps.animTimer = self.powerUps.animTimer + dt
-            if self.powerUps.animTimer > self.powerUps.animTimerMax then
-                self.powerUps.animTimer = 0
-                self.powerUps.anim = "none"
-                self.movable = true
-                self.sprites.animations.shoot:resume()
-                self.sprites.animations.shoot:gotoFrame(1)
-            end
+        self.powerUps.animTimer = self.powerUps.animTimer + dt
+        if self.powerUps.animTimer > self.powerUps.animTimerMax then
+            self.powerUps.animTimer = 0
+            self.powerUps.anim = "none"
+            self.movable = true
+            self.sprites.animations.shoot:resume()
+            self.sprites.animations.shoot:gotoFrame(1)
+        end
         self.animation = self.sprites.animations.shoot
     --or gliding in a wall (we know that the player is doing that if he can wall jump)
     elseif self.canWallJump.right or self.canWallJump.left then
@@ -312,7 +318,7 @@ function Player:animate(dt)
         self.animation = self.sprites.animations.fall
     else
         if self.grounded then
-                --if the player has no x velocity it means they aren´t moving, so apply the idle aniamation, if it´s not 0, then they are moving
+            --if the player has no x velocity it means they aren´t moving, so apply the idle aniamation, if it´s not 0, then they are moving
             if self.xVel == 0 then
                 self.animation = self.sprites.animations.idle
             else
@@ -328,18 +334,18 @@ end
 
 function Player:takeDamage(amount)
     --the player can only take damage is they are alive
-    if self.health.current > 0 then
-        self.powerUps.fire = false
-        --if the player doesn´t die when taking the amount of damage, just substract the it from their current health, else we kill the player. and also tint the player red when taking damage
-        self:tintRed()
-        if self.health.current - amount > 0 then
-            self.health.current = self.health.current - amount
-            self.inmortality = true
-        else
-            self.health.current = 0
-        end
-        sounds.hurt:play()
+    if self.health.current <= 0 then return end
+
+    self.powerUps.fire = false
+    --if the player doesn´t die when taking the amount of damage, just substract the it from their current health, else we kill the player. and also tint the player red when taking damage
+    self:tintRed()
+    if self.health.current - amount > 0 then
+        self.health.current = self.health.current - amount
+        self.inmortality = true
+    else
+        self.health.current = 0
     end
+    sounds.hurt:play()
 end
 
 function Player:tintRed()
@@ -367,33 +373,33 @@ end
 
 function Player:checkDeath(dt)
     --this little timer is for when the player dies the game waits one second while the death animation is playing and then the player and the world is restarted
-    if self.alive then
-        if self.health.current == 0 then
-            sounds.overworldMusic:stop()
-            sounds.undergroundMusic:stop()
+    if not self.alive then return end
 
-            --in that second the player won´t be able to move
-            self.movable = false
-            self.collider:setLinearVelocity(0, 800)
+    if self.health.current == 0 then
+        sounds.overworldMusic:stop()
+        sounds.undergroundMusic:stop()
 
-            --if the player found collectibles but dies, he loses them, the only way they are saved is by collecting them and passing the level without dying
-            self.statistics.collectibles_momentarily_found = self.statistics.collectibles_found
+        --in that second the player won´t be able to move
+        self.movable = false
+        self.collider:setLinearVelocity(0, 800)
 
-            self.respawnTimer = self.respawnTimer + dt
-            if self.respawnTimer > 1.5 then
-                --death of the player
-                self.alive = false
-                if self.lives - 1 == 0 then
-                    self.noLives = true
-                else
-                    self.lives = self.lives - 1
-                end
+        --if the player found collectibles but dies, he loses them, the only way they are saved is by collecting them and passing the level without dying
+        self.statistics.collectibles_momentarily_found = self.statistics.collectibles_found
+
+        self.respawnTimer = self.respawnTimer + dt
+        if self.respawnTimer > 1.5 then
+            --death of the player
+            self.alive = false
+            if self.lives - 1 == 0 then
+                self.noLives = true
+            else
+                self.lives = self.lives - 1
             end
-        --the player will die too if they fall to a pit
-        elseif self.y > 650 then
-            self.health.current = 0
-            sounds.hurt:play()
         end
+    --the player will die too if they fall to a pit
+    elseif self.y > 650 then
+        self.health.current = 0
+        sounds.hurt:play()
     end
 end
 
@@ -493,7 +499,7 @@ function Player:jump()
     -- we will know when he is using the second by checking if they are not at the ground (they are already perfoming a jump)
     self.sprites.animations.jump:resume()
     self.sprites.animations.fall:resume()
-    if not self.grounded and self.doubleJump then
+    if not self.grounded and self.doubleJump then --double jump
         -- if the player is falling, anulate the gravity to not cancel automatically the second jump impulse
         if self.yVel > -200 then
             self.collider:setLinearVelocity(self.xVel, 0)
@@ -505,7 +511,7 @@ function Player:jump()
 
         self.doubleJump = false
         self.sprites.animations.jump:gotoFrame(2)
-    else
+    else --normal jump
         self.collider:applyLinearImpulse(0, -1200)
         self.sprites.animations.jump:gotoFrame(1)
     end
@@ -523,15 +529,14 @@ end
 
 function Player:checkSlideWall()
     --reset sliding if the player is not falling to avoid bugs
+    if not self.canSlideWall then return end
 
-    if self.canSlideWall then
-        if love.keyboard.isDown('d', 'right') and self.WallSideDirection == "right" then
-            self:SlideWall()
-            self.canWallJump.right = true
-        elseif love.keyboard.isDown('a', 'left') and self.WallSideDirection == "left" then
-            self:SlideWall()
-            self.canWallJump.left = true
-        end
+    if love.keyboard.isDown('d', 'right') and self.WallSideDirection == "right" then
+        self:SlideWall()
+        self.canWallJump.right = true
+    elseif love.keyboard.isDown('a', 'left') and self.WallSideDirection == "left" then
+        self:SlideWall()
+        self.canWallJump.left = true
     end
 end
 
