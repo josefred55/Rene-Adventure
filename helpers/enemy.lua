@@ -109,27 +109,28 @@ function Enemy.removeAll()
 end
 
 function Enemy:move(dt)
-    if self.alive then
-        self.x = self.collider:getX()
-        self.y = self.collider:getY()
-
-        if self.xVel > 0 then
-            self.direction = "right"
-        else
-            self.direction = "left"
-        end
-    
-        --check collision every 0.1 seconds to avoid getting stuck colliding with itself
-        self.counter = self.counter + dt
-        if self.counter > 0.1 then
-            self:checkCollision()
-            self.counter = 0
-        end
-        self.collider:setLinearVelocity(self.xVel, 300)
-    else
+    if not self.alive then
         self.x = self.deathPos.x
         self.y = self.deathPos.y + 35
+        return 
     end
+    
+    self.x = self.collider:getX()
+    self.y = self.collider:getY()
+
+    if self.xVel > 0 then
+        self.direction = "right"
+    else
+        self.direction = "left"
+    end
+
+    --check collision every 0.1 seconds to avoid getting stuck colliding with itself
+    self.counter = self.counter + dt
+    if self.counter > 0.1 then
+        self:checkCollision()
+        self.counter = 0
+    end
+    self.collider:setLinearVelocity(self.xVel, 300)
 end
 
 function Enemy:checkCollision()
