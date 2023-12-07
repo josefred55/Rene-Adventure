@@ -147,34 +147,35 @@ end
 function especialCollider:beginContact(a, b, collision)
     for _, instance in ipairs(especialCollider.activeEspColliders) do
         if a == instance.collider.fixture or b == instance.collider.fixture then
-            if (a == player.collider.fixture or b == player.collider.fixture) and player.health.current > 0 then
-                if instance.type == "trampoline" then --the player will be impulsed when he touches a trampoline
-                    --the player can only bounce on the trampoline if they landed on it
-                    local mx, my = collision:getNormal()
-                    if a == player.collider.fixture then
-                        if my > 0 then
-                            player.collider:applyLinearImpulse(0, -3500)
-                        end
-                    elseif b == player.collider.fixture then
-                        if my < 0 then
-                            player.collider:applyLinearImpulse(0, -3500)
-                        end
-                        sounds.jump:stop()
-                        sounds.jump:play()
+            if not (a == player.collider.fixture or b == player.collider.fixture) or player.health.current <= 0 then goto continue end
+
+            if instance.type == "trampoline" then --the player will be impulsed when he touches a trampoline
+                --the player can only bounce on the trampoline if they landed on it
+                local mx, my = collision:getNormal()
+                if a == player.collider.fixture then
+                    if my > 0 then
+                        player.collider:applyLinearImpulse(0, -3500)
                     end
-                elseif instance.type == "flagpole" then --the player will win if he touchs the flagpole
-                    sounds.good:play()
-                    player.victory = true
-                    player.collider:setLinearVelocity(0, 500)
-                    player.movable = false
-                elseif instance.type == "lever" then --touching the lever of the second level will remove that big fake wall
-                    REMOVE_FAKE_WALLS = true
-                elseif instance.type == "collectible" then 
-                    instance.toBeRemoved = true
-                    sounds.good:play()
+                elseif b == player.collider.fixture then
+                    if my < 0 then
+                        player.collider:applyLinearImpulse(0, -3500)
+                    end
+                    sounds.jump:stop()
+                    sounds.jump:play()
                 end
+            elseif instance.type == "flagpole" then --the player will win if he touchs the flagpole
+                sounds.good:play()
+                player.victory = true
+                player.collider:setLinearVelocity(0, 500)
+                player.movable = false
+            elseif instance.type == "lever" then --touching the lever of the second level will remove that big fake wall
+                REMOVE_FAKE_WALLS = true
+            elseif instance.type == "collectible" then 
+                instance.toBeRemoved = true
+                sounds.good:play()
             end
         end
+        ::continue::
     end
 end
 
