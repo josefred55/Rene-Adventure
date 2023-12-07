@@ -181,11 +181,7 @@ end
 
 function Player:checkPowerUps(dt)
     if not self.powerUps.fire then return end
-
-    self:firePowerUp(dt)
-end
-
-function Player:firePowerUp(dt)
+    
     self.powerUps.fireballTimer = self.powerUps.fireballTimer + dt
     if self.powerUps.fireballTimer > 1.5 then
         if love.keyboard.isDown('z') and not self.canSlideWall then
