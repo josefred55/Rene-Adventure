@@ -164,30 +164,29 @@ function Enemy:checkCollision()
 end
 
 function Enemy:borderDetection()
-    if self.alive then
-        for _, wall in ipairs(Walls) do
-            if self.collider:isTouching(wall.collider.body) then
-                if wall.width and wall.height then
-                local wall_x, wall_y = wall.collider:getPosition()
+    if not self.alive then return end
 
-                wall_x = wall_x - wall.width
-                wall_y = wall_y - wall.height
+    for _, wall in ipairs(Walls) do
+        if not self.collider:isTouching(wall.collider.body) or not (wall.width and wall.height) then goto continue end
 
-                --check if the enemy is on top of the platform
-                if self.y < wall_y then
-                    --check if the enemy is going beyond the left border
-                    if self.x < wall_x + 10 then
-                        self.collider:setPosition(wall_x + 15, self.y)
-                        self:flipDirection("noRage")
-                    --check the right border
-                    elseif self.x > (wall_x + wall.width * 2) - 10 then
-                        self.collider:setPosition((wall_x + wall.width * 2) - 15, self.y)
-                        self:flipDirection("noRage")
-                    end
-                end
-                end
+        local wall_x, wall_y = wall.collider:getPosition()
+
+        wall_x = wall_x - wall.width
+        wall_y = wall_y - wall.height
+
+        --check if the enemy is on top of the platform
+        if self.y < wall_y then
+            --check if the enemy is going beyond the left border
+            if self.x < wall_x + 10 then
+                self.collider:setPosition(wall_x + 15, self.y)
+                self:flipDirection("noRage")
+            --check the right border
+            elseif self.x > (wall_x + wall.width * 2) - 10 then
+                self.collider:setPosition((wall_x + wall.width * 2) - 15, self.y)
+                self:flipDirection("noRage")
             end
         end
+        ::continue::
     end
 end
 
