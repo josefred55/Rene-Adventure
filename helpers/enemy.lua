@@ -297,18 +297,19 @@ end
 
 function Enemy:setPresolve(a, b, collision)
     for _, instance in ipairs(Enemy.activeEnemies) do
-        if instance.alive then
-            --the reason of this is that if the player is inmortal (just took damage) he will pass trought enemies like a ghost
-            if a == instance.collider.fixture or b == instance.collider.fixture then
-                if a == player.collider.fixture or b == player.collider.fixture then
-                    if player.inmortality and player.alive then
-                        collision:setEnabled(false)
-                    else
-                        collision:setEnabled(true)
-                    end
+        if not instance.alive then goto continue end
+
+        --the reason of this is that if the player is inmortal (just took damage) he will pass trought enemies like a ghost
+        if a == instance.collider.fixture or b == instance.collider.fixture then
+            if a == player.collider.fixture or b == player.collider.fixture then
+                if player.inmortality and player.alive then
+                    collision:setEnabled(false)
+                else
+                    collision:setEnabled(true)
                 end
             end
         end
+        ::continue::
     end
 end
 
