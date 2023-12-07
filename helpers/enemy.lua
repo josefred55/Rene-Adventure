@@ -114,7 +114,7 @@ function Enemy:move(dt)
         self.y = self.deathPos.y + 35
         return 
     end
-    
+
     self.x = self.collider:getX()
     self.y = self.collider:getY()
 
@@ -134,30 +134,30 @@ function Enemy:move(dt)
 end
 
 function Enemy:checkCollision()
-    if self.alive then
-        if player.collider:isTouching(self.collider.body) then
-            if not player.inmortality and player.health.current > 0 then
-                player:takeDamage(self.damage)
+    if not self.alive then return end
+
+    if player.collider:isTouching(self.collider.body) then
+        if not player.inmortality and player.health.current > 0 then
+            player:takeDamage(self.damage)
+            self:flipDirection("noRage")
+        end
+    end
+
+    --this is to avoid the enemy from getting stuck walking to a wall or two enemies that are walking in different directions get stuck when collide
+    for _, instance in ipairs(Enemy.activeEnemies) do
+        if instance.collider ~= self.collider and instance.alive then
+            if self.collider:isTouching(instance.collider.body) then
                 self:flipDirection("noRage")
             end
         end
+    end
 
-        --this is to avoid the enemy from getting stuck walking to a wall or two enemies that are walking in different directions get stuck when collide
-        for _, instance in ipairs(Enemy.activeEnemies) do
-            if instance.collider ~= self.collider and instance.alive then
-                if self.collider:isTouching(instance.collider.body) then
-                    self:flipDirection("noRage")
-                end
-            end
-        end
-
-        for _, wall in ipairs(Walls) do
-            if self.collider:isTouching(wall.collider.body) then
-                --only change direction if the wall is above or more or less at the enemy´s height the enemy, this will avoid the enemy from fliping if colliding with
-                --the ground or a platform
-                if self.collider:getY() > wall.collider:getY() then
-                    self:flipDirection("rage")
-                end
+    for _, wall in ipairs(Walls) do
+        if self.collider:isTouching(wall.collider.body) then
+            --only change direction if the wall is above or more or less at the enemy´s height the enemy, this will avoid the enemy from fliping if colliding with
+            --the ground or a platform
+            if self.collider:getY() > wall.collider:getY() then
+                self:flipDirection("rage")
             end
         end
     end
