@@ -234,7 +234,7 @@ function Enemy:checkAlive(dt)
             instance.collider.fixture:setSensor(true)
             instance.sensor = true
         end
-        
+
         instance.deathTimer = instance.deathTimer + dt
         if instance.deathTimer > 20 then
             instance.readytoDie = true
@@ -257,43 +257,41 @@ end
 
 function Enemy:beginContact(a, b, collision)
     for _, instance in ipairs(Enemy.activeEnemies) do
-        if instance.alive then
-            --check if one of the colliders is the enemy, if it is, if the other collider is the player, make the player take damage.
-            --if the enemy collided with the player or a a wall, make it flip its direction
-            if a == instance.collider.fixture or b == instance.collider.fixture then
-                if a == player.collider.fixture or b == player.collider.fixture then
-                    if not player.inmortality and player.health.current > 0 then
-                        player:takeDamage(instance.damage)
+        if not instance.alive then goto continue end
+        --check if one of the colliders is the enemy, if it is, if the other collider is the player, make the player take damage.
+        --if the enemy collided with the player or a a wall, make it flip its direction
+        if a == instance.collider.fixture or b == instance.collider.fixture then
+            if (a == player.collider.fixture or b == player.collider.fixture) and not player.inmortality and player.health.current > 0 then
+                player:takeDamage(instance.damage)
+                instance:flipDirection("noRage")
+            end
+
+            for _, wall in ipairs(Walls) do
+                if a == wall.collider.fixture or b == wall.collider.fixture then
+                    instance:flipDirection("rage")
+                end
+            end
+
+            --if the enemy collided with a fireball, kill the enenmy
+            for _, fireball in ipairs(fireball.ActiveFireballs) do
+                if a == fireball.collider.fixture or b == fireball.collider.fixture then
+                    instance.deathPos = {x = instance.collider:getX(), y = instance.collider:getY()}
+                    instance.alive = false
+                    fireball.toVanish = true
+                    sounds.bones:play()
+                end
+            end
+
+            --finally, check if the object enemy with another enemy, but that enemy won´t be the original enemy itself of course
+            for _, instance_2 in ipairs(Enemy.activeEnemies) do
+                if (a == instance_2.collider.fixture and a ~= instance.collider.fixture) or (b == instance_2.collider.fixture and b ~= instance.collider.fixture) then
+                    if instance_2.alive then
                         instance:flipDirection("noRage")
-                    end
-                end
-
-                for _, wall in ipairs(Walls) do
-                    if a == wall.collider.fixture or b == wall.collider.fixture then
-                        instance:flipDirection("rage")
-                    end
-                end
-
-                --if the enemy collided with a fireball, kill the enenmy
-                for _, fireball in ipairs(fireball.ActiveFireballs) do
-                    if a == fireball.collider.fixture or b == fireball.collider.fixture then
-                        instance.deathPos = {x = instance.collider:getX(), y = instance.collider:getY()}
-                        instance.alive = false
-                        fireball.toVanish = true
-                        sounds.bones:play()
-                    end
-                end
-
-                --finally, check if the object enemy with another enemy, but that enemy won´t be the original enemy itself of course
-                for _, instance_2 in ipairs(Enemy.activeEnemies) do
-                    if (a == instance_2.collider.fixture and a ~= instance.collider.fixture) or (b == instance_2.collider.fixture and b ~= instance.collider.fixture) then
-                        if instance_2.alive then
-                            instance:flipDirection("noRage")
-                        end
                     end
                 end
             end
         end
+        ::continue::
     end
 end
 
