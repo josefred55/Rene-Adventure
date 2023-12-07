@@ -225,20 +225,22 @@ end
 
 function Enemy:checkAlive(dt)
     for _, instance in ipairs(Enemy.activeEnemies) do
-        if not instance.alive then
-            --these actions for the enemy death are in this conditional because they are meant to be executed once, and of course before the enemy actually dies
-            if not instance.sensor then
-                instance.collider:setType("static")
-                instance.animation = instance.animations.death
-                instance.collider.fixture:setSensor(true)
-                instance.sensor = true
-            end
-            instance.deathTimer = instance.deathTimer + dt
-            if instance.deathTimer > 20 then
-                instance.readytoDie = true
-                instance:die()
-            end
+        if instance.alive then goto continue end
+
+        --these actions for the enemy death are in this conditional because they are meant to be executed once, and of course before the enemy actually dies
+        if not instance.sensor then
+            instance.collider:setType("static")
+            instance.animation = instance.animations.death
+            instance.collider.fixture:setSensor(true)
+            instance.sensor = true
         end
+        
+        instance.deathTimer = instance.deathTimer + dt
+        if instance.deathTimer > 20 then
+            instance.readytoDie = true
+            instance:die()
+        end
+        ::continue::
     end
 end
 
